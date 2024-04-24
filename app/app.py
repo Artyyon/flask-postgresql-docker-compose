@@ -1,10 +1,24 @@
+# import os
+# import sys
+
+# # Obtenha o diretório atual do script (app.py)
+# current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# # Adicione o diretório raiz do projeto ao caminho de busca de módulos
+# project_root = os.path.abspath(os.path.join(current_dir, '..'))
+# sys.path.append(project_root)
+
+
+import time
 from flask import Flask
 
 import os
 from dotenv import load_dotenv
 
-from .config import create_session
-from .models import UsuariosModel
+from config.database import create_session
+from models.usuarios_model import UsuariosModel
+
+from typing import Optional, List
 
 
 
@@ -20,36 +34,41 @@ def query():
     _session = create_session()
 
 
-    # Realiza a consulta no banco de dados
-    _usuarios_model = (
-        _session.query(
-            UsuariosModel
+    with _session() as session:
+        # Realiza a consulta no banco de dados
+        _usuarios_model = (
+            session.query(
+                UsuariosModel
+            )
+            .all()
         )
-        .all()
-    )
+
+        _usuarios_model: Optional[List[UsuariosModel]] = _usuarios_model
 
 
-    # Extrai os resultados e salva em uma lista
-    _usuarios_list = list
+        # Extrai os resultados e salva em uma lista
+        _usuarios_list = []
 
-    for _usuario in _usuarios_model:
-        _aux = {
-            'id': _usuario.id, 
-            'nome': _usuario.nome, 
-            'email': _usuario.email, 
-            'idade': _usuario.idade, 
-            'cidade': _usuario.cidade
-        }
+        for _usuario in _usuarios_model:
+            _aux = {
+                'id': _usuario.id, 
+                'nome': _usuario.nome, 
+                'email': _usuario.email, 
+                'idade': _usuario.idade, 
+                'cidade': _usuario.cidade
+            }
 
-        _usuarios_list.append(_aux)
+            _usuarios_list.append(_aux)
 
 
-    # Imprime a lista recuperada no terminal
-    print(
-        "\n\nLista de Usuários Registrados:\n"
-        f"{_usuarios_list}\n"
-        "\n\n"
-    )
+        # Imprime a lista recuperada no terminal
+        print(
+            "\n\nLista de Usuários Registrados:\n"
+            f"{_usuarios_list}\n"
+            "\n\n"
+        )
+
+        return _usuarios_list
 
 
 
@@ -60,9 +79,31 @@ load_dotenv()
 
 # Inicializa o aplicativo Flask
 if __name__ == '__main__':
+    # Adiciona um atraso de 10 segundos para garantir que o contêiner do PostgreSQL esteja pronto
+    time.sleep(10)
+    
+
     # Incialização da API
     _app.run(
         debug = True,  
         host = '0.0.0.0', 
         port = int(os.environ.get("PORT", 8000))
     )
+
+
+# É dessa forma que está organizado meu diretorio:
+# /app
+#     /config
+# 		__init__.py
+#         database.py
+#     /models
+#         __init__.py
+#         usuarios_model.py
+#     .env
+#     app.py
+# /sql
+#     create_tables.sql
+# docker-compose.yml
+# Dockerfile
+# README.md
+# requirements.txt

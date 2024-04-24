@@ -28,7 +28,7 @@ def create_session() -> Session:
             Uma sessão do banco de dados para realização da consulta
     """
     # Cria uma engine de conexão com o banco de dados usando a URL definida
-    _engine = create_engine(DATABASE_URL, echo = True)
+    _engine = create_engine("postgresql://seu_usuario:sua_senha@db/nome_do_banco_de_dados", echo = True)
 
 
     # Cria uma classe de sessão (session) para interagir com o banco de dados
