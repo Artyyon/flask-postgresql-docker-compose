@@ -25,36 +25,241 @@ Neste documento, será apresnetado como configurar um ambiente de desenvolviment
 
 ### Configuração do Projeto
 
-É possível criar um contêiner Docker que armazene uma API Flask junto com um banco de dados PostgreSQL. Aqui está uma abordagem básica de como você pode fazer isso:
+#### Organização do Diretório
 
-1. **Crie uma aplicação Flask**: Comece criando um aplicativo Flask que atue como sua API.
-
-```py
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-app = Flask(__name__)
-
-# Configuração do banco de dados
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://seu_usuario:sua_senha@endereco_do_banco_de_dados/nome_do_banco_de_dados'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Inicialização do SQLAlchemy
-db = SQLAlchemy(app)
-
-# Definição do modelo da tabela (se necessário)
-class Exemplo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(50))
-
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
-
+```bash
+/app
+    /config
+		__init__.py
+        database.py
+    /models
+        __init__.py
+        usuarios_model.py
+    .env
+    app.py
+/sql
+    create_tables.sql
+docker-compose.yml
+Dockerfile
+README.md
+requirements.txt
 ```
+
+#### Criação de um Aplicativo Flask
+
+Vamos iniciar criando um aplicativo Flask para servir como nossa API. O exemplo a seguir baseia-se em parte na ideia de implementar uma arquitetura limpa para a programação, porém, é apenas um ponto de partida. Utilizaremos o SQLAlchemy para realizar consultas de forma simplificada.
+
+
+##### app.py
+
+Código principal da API, responsavel por criar as rotas e a inicializar.
+
+```python
+import time
+from flask import Flask
+
+import os
+from dotenv import load_dotenv
+
+from config.database import create_session
+from models.usuarios_model import UsuariosModel
+
+from typing import Optional, List
+
+
+
+# Cria uma instância do aplicativo Flask
+_app = Flask(__name__)
+
+
+
+# Definição da rota de consulta de teste
+@_app.route('/query')
+def query():
+    # Recupera a sessão para a consulta
+    _session = create_session()
+
+
+    with _session() as session:
+        # Realiza a consulta no banco de dados
+        _usuarios_model = (
+            session.query(
+                UsuariosModel
+            )
+            .all()
+        )
+
+        _usuarios_model: Optional[List[UsuariosModel]] = _usuarios_model
+
+
+        # Extrai os resultados e salva em uma lista
+        _usuarios_list = []
+
+        for _usuario in _usuarios_model:
+            _aux = {
+                'id': _usuario.id, 
+                'nome': _usuario.nome, 
+                'email': _usuario.email, 
+                'idade': _usuario.idade, 
+                'cidade': _usuario.cidade
+            }
+
+            _usuarios_list.append(_aux)
+
+
+        # Imprime a lista recuperada no terminal
+        print(
+            "\n\nLista de Usuários Registrados:\n"
+            f"{_usuarios_list}\n"
+            "\n\n"
+        )
+
+        return _usuarios_list
+
+
+
+# Carrega as variáveis de ambiente
+load_dotenv()
+
+
+
+# Inicializa o aplicativo Flask
+if __name__ == '__main__':
+    # Adiciona um atraso de 10 segundos para garantir que o contêiner do PostgreSQL esteja pronto
+    time.sleep(10)
+    
+
+    # Incialização da API
+    _app.run(
+        debug = True,  
+        host = '0.0.0.0', 
+        port = int(os.environ.get("PORT", 8000))
+    )
+```
+
+
+##### database.py
+
+#######################################################################################
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
+
+from dotenv import load_dotenv
+
+import os
+
+
+# Declaração da base
+Base = declarative_base()
+
+
+# Carrega as variáveis de ambiente do arquivo .env
+load_dotenv()
+
+
+# Recupera a URL de conexão com o banco de dados PostgreSQL a partir das variáveis de ambiente
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+
+# Cria sessão do banco de dados para consulta
+def create_session() -> Session:
+    """
+        Método para criação de uma sessão do banco de dados para realização de consultas
+
+        Returns:
+            Uma sessão do banco de dados para realização da consulta
+    """
+    # Cria uma engine de conexão com o banco de dados usando a URL definida
+    _engine = create_engine("postgresql://seu_usuario:sua_senha@db/nome_do_banco_de_dados", echo = True)
+
+
+    # Cria uma classe de sessão (session) para interagir com o banco de dados
+    _session = sessionmaker(bind = _engine)
+
+
+    # Retorna a sessão criada
+    return _session
+```
+
+
+##### usuarios_model.py
+
+```python
+from sqlalchemy import Column, Integer, String, Sequence
+from config import Base
+
+
+class UsuariosModel(Base):
+    """
+        Definição da tabela
+    """
+    __tablename__ = 'usuarios'
+
+    id = Column(
+        Integer, 
+        Sequence('usuarios_id_seq'),
+        primary_key = True, 
+        autoincrement = True
+    )
+
+    nome = Column(String(100), unique = False, nullable = True)
+    email = Column(String(100), unique = True, nullable = True)
+    idade = Column(Integer, unique = False, nullable = True)
+    cidade = Column(String(100), unique = False, nullable = True)
+```
+
+
+##### .env
+
+```bash
+PORT = 8000
+
+DATABASE_URL='postgresql://seu_usuario:sua_senha@db/nome_do_banco_de_dados'
+```
+
+
+##### create_tables.sql
+
+```sql
+-- Criação da tabela para o exemplo
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    idade INTEGER,
+    cidade VARCHAR(100)
+);
+
+
+-- Inserção de dados de exemplo
+INSERT INTO usuarios (nome, email, idade, cidade)
+VALUES 
+    ('Maria Oliveira', 'maria@example.com', 25, 'Rio de Janeiro'),
+    ('Pedro Santos', 'pedro@example.com', 35, 'Salvador'),
+    ('Ana Costa', 'ana@example.com', 28, 'Belo Horizonte');
+```
+
+
+##### requirements.txt
+
+```text
+Flask==2.3.3
+SQLAlchemy==2.0.20
+psycopg2-binary==2.9.7  # Para interagir com o PostgreSQL
+python-dotenv==1.0.0
+```
+
+
+#### Criação do Dockerfile
+
+
+""""
+  Continuar aqui
+""""
+
 
 2. **Crie o Dockerfile**: Agora, você precisa criar um Dockerfile para empacotar sua aplicação Flask e suas dependências.
 

@@ -1,14 +1,3 @@
-# import os
-# import sys
-
-# # Obtenha o diretório atual do script (app.py)
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-
-# # Adicione o diretório raiz do projeto ao caminho de busca de módulos
-# project_root = os.path.abspath(os.path.join(current_dir, '..'))
-# sys.path.append(project_root)
-
-
 import time
 from flask import Flask
 
@@ -89,21 +78,3 @@ if __name__ == '__main__':
         host = '0.0.0.0', 
         port = int(os.environ.get("PORT", 8000))
     )
-
-
-# É dessa forma que está organizado meu diretorio:
-# /app
-#     /config
-# 		__init__.py
-#         database.py
-#     /models
-#         __init__.py
-#         usuarios_model.py
-#     .env
-#     app.py
-# /sql
-#     create_tables.sql
-# docker-compose.yml
-# Dockerfile
-# README.md
-# requirements.txt
