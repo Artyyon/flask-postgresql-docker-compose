@@ -22,7 +22,7 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 # Cria sessão do banco de dados para consulta
 def create_session() -> Session:
     """
-        Método para criação de uma sessão do banco de dados para realização de consultas
+        Método para criação de uma sessão do banco de dados para consulta para realização de consultas
 
         Returns:
             Uma sessão do banco de dados para realização da consulta

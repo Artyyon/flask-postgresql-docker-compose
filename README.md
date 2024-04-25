@@ -2,7 +2,7 @@
 
 ## Introdução
 
-Essa documentação visa guiar o processo de criação de uma API de teste utilizando Flask, um framework web Python, juntamente com o banco de dados PostgreSQL.
+Essa documentação visa guiar o processo de criação de uma API de teste utilizando Flask, um framework web Python, junto ao banco de dados PostgreSQL.
 
 O uso de contêineres Docker simplifica significativamente o processo de desenvolvimento, implantação e execução de aplicativos, garantindo a portabilidade e consistência do ambiente de desenvolvimento em diferentes sistemas operacionais.
 
@@ -13,11 +13,11 @@ Neste documento, será apresentado como configurar um ambiente de desenvolviment
 
 ### Estrutura do Diretório
 
-- `/app`: Contém os arquivos relacionados à aplicação Flask.
-    - `/config`: Consigurações da aplicação, incluindo a conexão com o banco de dados.
+- `/app`: Contém os arquivos relacionados à aplicativo Flask.
+    - `/config`: Configurações da aplicação, incluindo a conexão com o banco de dados.
     - `/models`: Definição dos modelos de dados da aplicação.
-    - `.env`: Arquivo de configuração das variáveis de ambiente.
-    - `app.py`: Ponto de entrada da aplicação Flask.
+    - `.env`: Arquivo de configurações das variáveis de ambiente.
+    - `app.py`: Ponto de entrada do aplicativo Flask.
 - `/sql`: Arquivos SQL para inicialização do banco de dados.
 - `docker-compose.yml`: Configuração do Docker Compose para orquestrar os contêineres.
 - `Dockerfile`: Configuração para construir a imagem do contêiner da aplicação.
@@ -27,10 +27,10 @@ Neste documento, será apresentado como configurar um ambiente de desenvolviment
 
 ### Criação de um Aplicativo Flask
 
-Inicialmente criamos uma aplicação Flask simples, que apenas realiza uma consulta em um banco de dados retornando os usuários cadastrados no sistema.
+Inicialmente criamos uma aplicativo Flask simples, que apenas realiza uma consulta em um banco de dados retornando os usuários cadastrados no sistema.
 Os códigos a seguir apresentam a aplicação construida utilizando a estrutura do diretório apresentada.
 
-Começando pelos extremos da construção da aplicação, primeiro definimos a criação das tabelas e de dos dados de teste que utilizaremos na consulta da aplicação.
+Começando pelos extremos da construção da aplicação, primeiro definimos a criação das tabelas e dos dados de teste que utilizaremos na consulta da aplicação.
 
 Código SQL utilizado no exemplo, localizado em `/sql` no diretório:
 ```sql
@@ -111,7 +111,7 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 # Cria sessão do banco de dados para consulta
 def create_session() -> Session:
     """
-        Método para criação de uma sessão do banco de dados para realização de consultas
+        Método para criação de uma sessão do banco de dados para consulta para realização de consultas
 
         Returns:
             Uma sessão do banco de dados para realização da consulta
@@ -129,9 +129,9 @@ def create_session() -> Session:
 ```
 
 
-Depois de criamos a conexão com o banco de dados resta criar a interface da aplicação Flask, que será responsável por executar a aplicação, definindo as rotas das consultas para a versão web.
+Depois de criamos a conexão com o banco de dados resta criar a interface do aplicativo Flask, que será responsável por executar a aplicação, definindo as rotas das consultas para a aplicação web.
 
-Código de entrada da aplicação Flask, localizado em `/app/app.py` no diretório:
+Código de entrada do aplicativo Flask, localizado em `/app/app.py` no diretório:
 ```python
 import time
 from flask import Flask
@@ -216,7 +216,7 @@ if __name__ == '__main__':
 ```
 
 
-Após configurarmos a rota, o corpo da aplicação Flask está praticamente pronta, restando a construção das dependências da aplicação e construção e execução dos contêineres que serão responsaveis por colocar a aplicação para funcionar.
+Após configurarmos a rota, o corpo do aplicativo Flask está praticamente pronta, restando a construção das dependências da aplicação e construção e execução dos contêineres que serão responsaveis por colocar a aplicação para funcionar.
 
 Após a construção da aplicação é necessário definir as variáveis de ambiente que irá conter as informações para a conexão com o banco de dados outras informações necessárias para a aplicação.
 
@@ -227,9 +227,9 @@ DATABASE_URL='postgresql://seu_usuario:sua_senha@db/nome_do_banco_de_dados'
 ```
 
 
-## Criação das Dependências da Aplicação Flask (requirements.txt)
+## Criação das Dependências do aplicativo Flask (requirements.txt)
 
-As dependências do projeto são listadas no arquivo `requirements.txt` e são necessárias para o funcionamento correto da aplicação Flask. Aqui está a lista das dependências e suas finalidades:
+As dependências do projeto são listadas no arquivo `requirements.txt` e são necessárias para o funcionamento correto do aplicativo Flask. Aqui está a lista das dependências e suas finalidades:
 
 - Flask==2.3.3: Framework web utilizado para construir a aplicação.
 - SQLAlchemy==2.0.20: ORM (Object-Relational Mapping) utilizado para interagir com o banco de dados PostgreSQL.
@@ -239,9 +239,9 @@ As dependências do projeto são listadas no arquivo `requirements.txt` e são n
 
 ## Construção e Execução dos Contêineres
 
-### Construção do Dockerfile
+### Construção do Dockerfile (`Dockerfile`)
 
-O Dockerfile define as instruções para construir a imagem do contêiner que executará a aplicação Flask.
+O Dockerfile define as instruções para construir a imagem do contêiner que executará a aplicativo Flask.
 
 ```dockerfile
 # Use a imagem base do Python 3.9.13
@@ -322,7 +322,7 @@ Aqui está uma explicação rápida sobre as etapas:
 
 - `version: '1'`: Indica a versão do formato do arquivo Docker Compose. No caso, estamos usando a versão 1.
 
-- `services`: Define os serviços que compõem a aplicação. Neste caso, temos dois serviços: `db` (banco de dados PostgreSQL) e `web` (aplicação Flask).
+- `services`: Define os serviços que compõem a aplicação. Neste caso, temos dois serviços: `db` (banco de dados PostgreSQL) e `web` (aplicativo Flask).
 
 - Serviço `db`:
 
@@ -332,7 +332,7 @@ Aqui está uma explicação rápida sobre as etapas:
 
     - `volumes`: Mapeia o diretório local `./sql` para o diretório `/docker-entrypoint-initdb.d` dentro do contêiner do banco de dados PostgreSQL. Isso permite que arquivos SQL sejam executados automaticamente durante a inicialização do banco de dados.
 
-    - `ports`: Mapeia a porta 5432 do contêiner PostgreSQL para a porta 5432 do host. Isso permite que a aplicação Flask se conecte ao banco de dados.
+    - `ports`: Mapeia a porta 5432 do contêiner PostgreSQL para a porta 5432 do host. Isso permite que a aplicativo Flask se conecte ao banco de dados.
 
     - `healthcheck`: Define um teste de saúde para verificar se o contêiner do PostgreSQL está pronto para aceitar conexões. Neste caso, estamos usando o comando `pg_isready` para verificar se o banco de dados está pronto.
 
@@ -340,11 +340,11 @@ Aqui está uma explicação rápida sobre as etapas:
 
     - `build: .`: Indica que o Docker deve construir a imagem do contêiner para o serviço `web` usando o Dockerfile localizado no diretório atual (`.`).
 
-    - `ports`: Mapeia a porta 8000 do contêiner da aplicação Flask para a porta 8000 do host. Isso permite acessar a API Flask a partir do navegador ou de outras aplicações.
+    - `ports`: Mapeia a porta 8000 do contêiner do aplicativo Flask para a porta 8000 do host. Isso permite acessar a API Flask a partir do navegador ou de outras aplicações.
 
-    - `depends_on`: Define a dependência do serviço `web` em relação ao serviço `db`. Isso garante que o contêiner do banco de dados seja iniciado antes do contêiner da aplicação Flask.
+    - `depends_on`: Define a dependência do serviço `web` em relação ao serviço `db`. Isso garante que o contêiner do banco de dados seja iniciado antes do contêiner do aplicativo Flask.
 
-Essas são as principais configurações presentes no arquivo docker-compose.yml. Ele define a estrutura e as configurações dos contêineres necessários para executar a aplicação Flask com o banco de dados PostgreSQL.
+Essas são as principais configurações presentes no arquivo docker-compose.yml. Ele define a estrutura e as configurações dos contêineres necessários para executar a aplicativo Flask com o banco de dados PostgreSQL.
 
 
 ### Execução dos Contêineres
@@ -355,7 +355,7 @@ Com todos os arquivos configurados, você pode construir e executar o contêiner
 docker-compose up --build
 ```
 
-Isso irá criar e iniciar os contêineres do PostgreSQL e do Flask. Sua API Flask estará disponível em `http://localhost:5000`.
+Isso irá criar e iniciar os contêineres do PostgreSQL e do Flask. Sua API Flask estará disponível em `http://localhost:8000`.
 
 
 <sub>Ultima atualização 25/04/2024.</sub>
