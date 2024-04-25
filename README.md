@@ -216,15 +216,16 @@ if __name__ == '__main__':
 ```
 
 
-Após configurarmos a rota, o corpo do aplicativo Flask está praticamente pronta, restando a construção das dependências da aplicação e construção e execução dos contêineres que serão responsaveis por colocar a aplicação para funcionar.
+Após definirmos as rotas, é necessário configurar as variáveis de ambiente, que são utilizadas para definir a conexão da aplicação com o banco de dados e a porta de saída do aplicativo Flask.
 
-Após a construção da aplicação é necessário definir as variáveis de ambiente que irá conter as informações para a conexão com o banco de dados outras informações necessárias para a aplicação.
-
+Código das variáveis de ambiente:
 ```bash
 PORT = 8000
 
 DATABASE_URL='postgresql://seu_usuario:sua_senha@db/nome_do_banco_de_dados'
 ```
+
+Essas variáveis de ambiente serão carregadas automaticamente pela aplicação Flask durante a inicialização, permitindo que ela se conecte ao banco de dados e seja executada na porta especificada.
 
 
 ## Criação das Dependências do aplicativo Flask (requirements.txt)
